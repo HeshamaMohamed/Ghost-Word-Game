@@ -10,11 +10,17 @@ describe Game do
     describe "#initialize" do
         let(:testGame) {Game.new(player1, player2)}
 
-        it "has an dictionary"
+        it "has an dictionary" do
+            expect(testGame.dictionary).to_not be nil
+        end
 
-        it "has 2 players"
+        it "has 2 players" do
+            expect(testGame.players.count).to eq(2)
+        end
 
-        it "has an empty word fragment"
+        it "has an empty word fragment" do
+            expect(testGame.fragment).to eq("")
+        end
         
     end
 
