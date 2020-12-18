@@ -4,29 +4,55 @@ require 'set'
 class Game
 
     ALPHABET = Set.new("a".."z")
-    attr_reader :players, :dictionary
+    MAX_LOSS_COUNT = 5
+    attr_reader :players, :dictionary, :current_player, :previous_player, :playersRotated
     attr_accessor :fragment, :players, :dictionary
     def initialize(*players)
         words = File.readlines("dictionary.txt").map(&:chomp)
+        @dictionary = Set.new(words)
         @players = players
         @playersRotated = @players.clone
         @fragment = ""
-        @dictionary = Set.new(words)
         @current_player = players.first
         @previous_player = nil
+        @losses = Hash.new { |losses, player| losses[player] = 0}
     end
 
     def play
-        play_round
+        play_round until game_over?
+    end
+
+    def game_over?
+        @playersRotated.count == 1
     end
 
     def play_round
-        while !round_over?
-            take_turn(@current_player)
-        end
+        take_turn(@current_player) until round_over?
         p "#{@previous_player.name} has lost the round"
+        update_standings
     end
     
+    def update_standings
+        puts "#{previous_player} gets a letter!"
+        if losses[previous_player] == MAX_LOSS_COUNT - 1
+            puts "#{previous_player} has been eliminated!"
+            remove_loser
+        end
+        losses[previous_player] += 1
+        display_standings
+    end
+
+    def display_standings
+        puts "Current standings:"
+        playersRotated.each do |player|
+        puts "#{player}: #{record(player)}"
+        end
+    end
+
+    def remove_loser
+        @playersRotated.pop
+    end
+
     def round_over?
         is_word?(@fragment)
     end
@@ -56,19 +82,6 @@ class Game
         @playersRotated.push(player)
         @current_player = @playersRotated.first
         @previous_player = @playersRotated.last
-    end
-
-    def current_player
-        next_player! if @current_player == ""
-        @current_player
-    end
-
-    def previous_player
-        if @previous_player == ""
-            @previous_player 
-        else
-            @previous_player
-        end
     end
 
     def take_letter(player, letter = nil)

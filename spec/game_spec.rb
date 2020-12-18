@@ -157,8 +157,28 @@ describe Game do
                 end
             end
 
+            describe "#game_over?" do
+                it "is false at game beginning" do
+                    expect(game.game_over?).to be false
+                end
+
+                it "is true when only 1 player is left" do
+                    game.remove_loser until game.playersRotated.count < 2
+                    expect(game.game_over?).to be true
+                end
+            end
+            
+            describe "#update_standings" do
+                
+            end
+
+            describe "#update_standings" do
+                
+            end
         end
     end
+
+
 
 
 end
